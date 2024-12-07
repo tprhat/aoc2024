@@ -84,9 +84,10 @@ func part2(name string) int {
 				} else if op[i-1] == 1 {
 					res *= val
 				} else {
-					r := strconv.Itoa(res)
-					r += values[i]
-					res, _ = strconv.Atoi(r)
+					res = concat(res, val)
+					// r := strconv.Itoa(res)
+					// r += values[i]
+					// res, _ = strconv.Atoi(r)
 				}
 			}
 			if res == result {
@@ -112,6 +113,18 @@ func buildTernaryOperations(lenOps int) [][]int {
 		op = append(op, op1)
 	}
 	return op
+}
+
+func concat(a, b int) int {
+	tmp := b
+	for {
+		if tmp == 0 {
+			break
+		}
+		tmp /= 10
+		a *= 10
+	}
+	return a + b
 }
 
 func transformInput(name string) []string {
