@@ -85,9 +85,6 @@ func part2(name string) int {
 					res *= val
 				} else {
 					res = concat(res, val)
-					// r := strconv.Itoa(res)
-					// r += values[i]
-					// res, _ = strconv.Atoi(r)
 				}
 			}
 			if res == result {
