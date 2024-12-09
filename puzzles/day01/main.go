@@ -36,11 +36,7 @@ func part2(name string) int {
 	for i := range ids1 {
 		for j := range ids2 {
 			if ids1[i] == ids2[j] {
-				if _, ok := idsMap[ids1[i]]; ok {
-					idsMap[ids1[i]]++
-				} else {
-					idsMap[ids1[i]] = 1
-				}
+				idsMap[ids1[i]]++
 			}
 		}
 	}
