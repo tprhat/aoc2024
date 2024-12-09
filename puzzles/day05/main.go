@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"os"
 	"slices"
@@ -97,11 +98,15 @@ func part2(name string) int {
 }
 
 func transformInput(name string) (map[int][]int, []string) {
-	inputFile, err := os.ReadFile(name)
+	file, err := os.Open(name)
 	if err != nil {
 		panic(err)
 	}
-	lines := strings.Split(string(inputFile), "\n")
+	lines := []string{}
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		lines = append(lines, scanner.Text())
+	}
 	var pages []string
 	rules := make(map[int][]int)
 

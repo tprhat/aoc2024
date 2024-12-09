@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"math"
 	"os"
@@ -53,11 +54,15 @@ func part2(name string) int {
 }
 
 func transformInput(name string) ([]int, []int) {
-	inputFile, err := os.ReadFile(name)
+	file, err := os.Open(name)
 	if err != nil {
 		panic(err)
 	}
-	lines := strings.Split(string(inputFile), "\n")
+	lines := []string{}
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		lines = append(lines, scanner.Text())
+	}
 	var ids1 []int
 	var ids2 []int
 	for _, line := range lines {

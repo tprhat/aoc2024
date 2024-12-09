@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"os"
 	"strconv"
@@ -111,10 +112,14 @@ func checkAntinodes2(nodes map[string][][]int, antinodes map[string]int, matrix 
 }
 
 func transformInput(name string) []string {
-	inputFile, err := os.ReadFile(name)
+	file, err := os.Open(name)
 	if err != nil {
 		panic(err)
 	}
-	lines := strings.Split(string(inputFile), "\n")
+	lines := []string{}
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		lines = append(lines, scanner.Text())
+	}
 	return lines
 }
