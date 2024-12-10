@@ -71,6 +71,11 @@ func turnRight(pos []int) []int {
 	return []int{x, y}
 }
 
+type Position struct {
+	x int
+	y int
+}
+
 func part2(name string) int {
 	var matrix [][]string
 	lines := transformInput(name)
@@ -89,47 +94,48 @@ func part2(name string) int {
 	for _, point := range visitedPoints {
 		// write the starting position back to pos on every iteration
 		// since it gets changed in the inner loop
-		pos := []int{}
-		pos = append(pos, posStarting...)
-		if point[0] == pos[0] && point[1] == pos[1] {
+		pos := Position{x: posStarting[0], y: posStarting[1]}
+		if point.x == pos.x && point.y == pos.y {
 			// skip starting position
 			continue
 		}
-		matrix[point[0]][point[1]] = "#"
+		matrix[point.x][point.y] = "#"
 		dir := []int{-1, 0}
-		visited := make(map[string]int)
-		visited[toString(pos)] += 1
+		dirNum := 1
+		visited := make(map[Position]int)
+		visited[pos] = dirNum
 		for {
 			// if outside of the board
-			if pos[0]+dir[0] < 0 || pos[0]+dir[0] >= len(matrix) || pos[1]+dir[1] < 0 || pos[1]+dir[1] >= len(matrix) {
+			if pos.x+dir[0] < 0 || pos.x+dir[0] >= len(matrix) || pos.y+dir[1] < 0 || pos.y+dir[1] >= len(matrix) {
 				break
 			}
-			if matrix[pos[0]+dir[0]][pos[1]+dir[1]] == "#" {
+			if matrix[pos.x+dir[0]][pos.y+dir[1]] == "#" {
+				dirNum = (dirNum)%4 + 1
 				dir = turnRight(dir)
 				continue
 			}
-			pos[0] += dir[0]
-			pos[1] += dir[1]
-			visited[toString(pos)] += 1
+			pos.x += dir[0]
+			pos.y += dir[1]
 
 			// found a loop
-			if visited[toString(pos)] > 3 {
+			if visited[pos] == dirNum {
 				cnt++
 				break
 			}
+			visited[pos] = dirNum
 		}
-		matrix[point[0]][point[1]] = "."
+		matrix[point.x][point.y] = "."
 	}
 	return cnt
 }
 
-func getVisitedPoints(matrix [][]string, poss []int) [][]int {
+func getVisitedPoints(matrix [][]string, poss []int) []Position {
 	dir := []int{-1, 0}
 	pos := []int{}
 	pos = append(pos, poss...)
-	var visitedPoints [][]int
-	// []int{pos[0], pos[1]} creates a new pointer
-	visitedPoints = append(visitedPoints, []int{pos[0], pos[1]})
+	var visitedPoints []Position
+	// Position{} creates a new pointer
+	visitedPoints = append(visitedPoints, Position{x: pos[0], y: pos[1]})
 	for {
 		// if outside of the board
 		if pos[0]+dir[0] < 0 || pos[0]+dir[0] >= len(matrix) || pos[1]+dir[1] < 0 || pos[1]+dir[1] >= len(matrix) {
@@ -143,13 +149,13 @@ func getVisitedPoints(matrix [][]string, poss []int) [][]int {
 		pos[1] += dir[1]
 		exists := false
 		for _, elem := range visitedPoints {
-			if elem[0] == pos[0] && elem[1] == pos[1] {
+			if elem.x == pos[0] && elem.y == pos[1] {
 				exists = true
 				break
 			}
 		}
 		if !exists {
-			visitedPoints = append(visitedPoints, []int{pos[0], pos[1]})
+			visitedPoints = append(visitedPoints, Position{x: pos[0], y: pos[1]})
 		}
 	}
 	return visitedPoints
