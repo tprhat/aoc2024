@@ -111,10 +111,10 @@ func part2(name string) int {
 		// }
 		// my result was at i == 7709 so this is here
 		if i == 7709 { // if print {
-			for i := 0; i < width; i++ {
+			for i := 0; i < height; i++ {
 				fmt.Println()
-				for j := 0; j < height; j++ {
-					if isIn(i, j, ls) {
+				for j := 0; j < width; j++ {
+					if isIn(j, i, ls) {
 						fmt.Print("#")
 					} else {
 						fmt.Print(".")
@@ -152,7 +152,7 @@ func transformInput(name string) []string {
 
 func main() {
 	start := time.Now()
-	fmt.Println("Part 1:", part1("testinput.txt"))
+	fmt.Println("Part 1:", part1("input.txt"))
 	t1 := time.Now()
 	fmt.Println("Part1 time: ", t1.Sub(start))
 	fmt.Println("Part 2:", part2("input.txt"))
