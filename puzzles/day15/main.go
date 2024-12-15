@@ -27,12 +27,8 @@ func part1(name string) int {
 		}
 		matrix = append(matrix, l)
 	}
-	// fmt.Println(currPoint, matrix, moves)
 	for _, move := range moves {
 		matrix, currPoint = moveInDir(matrix, currPoint, move)
-		// fmt.Println(move)
-		// fmt.Println(currPoint)
-		// printMap(matrix)
 	}
 	total := 0
 	for i := 0; i < len(matrix); i++ {
@@ -44,13 +40,7 @@ func part1(name string) int {
 	}
 	return total
 }
-func printMap(matrix [][]string) {
-	fmt.Println("_____MAP_______")
-	for _, m := range matrix {
-		fmt.Println(m)
-	}
-	fmt.Println("____END________")
-}
+
 func moveInDir(matrix [][]string, pos Point, dir string) ([][]string, Point) {
 	currPos := pos
 	currPosRobot := pos
@@ -59,8 +49,6 @@ func moveInDir(matrix [][]string, pos Point, dir string) ([][]string, Point) {
 	for {
 		currPos.x += currDir.x
 		currPos.y += currDir.y
-		// fmt.Println("DEBUG1", currPos)
-		// fmt.Println(matrix[currPos.x][currPos.y])
 		if matrix[currPos.x][currPos.y] == "#" {
 			nStones = 0
 			break
@@ -80,12 +68,9 @@ func moveInDir(matrix [][]string, pos Point, dir string) ([][]string, Point) {
 		currPosRobot.x += currDir.x
 		currPosRobot.y += currDir.y
 		matrix[currPosRobot.x][currPosRobot.y] = "@"
-		// fmt.Println("ROBOT MOVED TO:", currPosRobot)
 	}
 	if nStones > 1 {
 		currPos = currPosRobot
-		// fmt.Println("MOVING ROCKS", currPos) // OK
-		// fmt.Println(currPos)
 		for i := 0; i < nStones-1; i++ {
 			currPos.x += currDir.x
 			currPos.y += currDir.y
@@ -138,7 +123,7 @@ func part2(name string) int {
 	return total
 }
 
-type Point2 struct {
+type Box struct {
 	x, y int
 	sign string
 }
@@ -148,6 +133,8 @@ func moveInDir2(matrix [][]string, pos Point, dir string) ([][]string, Point) {
 	currPosRobot := pos
 	nStones := 0
 	currDir := dirs[dir]
+	// since the boxes now have a height of 1 and width of 2 split the code into 2 cases
+	// left and right behave the same as in part 1 and up and down have a new logic
 	if dir == "<" || dir == ">" {
 		for {
 			currPos.x += currDir.x
@@ -172,12 +159,9 @@ func moveInDir2(matrix [][]string, pos Point, dir string) ([][]string, Point) {
 			currPosRobot.y += currDir.y
 			nextElem = matrix[currPosRobot.x][currPosRobot.y]
 			matrix[currPosRobot.x][currPosRobot.y] = "@"
-			// fmt.Println("ROBOT MOVED TO:", currPosRobot)
 		}
 		if nStones > 1 {
 			currPos = currPosRobot
-			// fmt.Println("MOVING ROCKS", currPos) // OK
-			// fmt.Println(currPos)
 			for i := 0; i < nStones-1; i++ {
 				currPos.x += currDir.x
 				currPos.y += currDir.y
@@ -191,40 +175,40 @@ func moveInDir2(matrix [][]string, pos Point, dir string) ([][]string, Point) {
 			}
 		}
 		return matrix, currPosRobot
-
 	}
 	// up and down
-	stonesToMove := [][]Point2{}
-	levels := 0
+	// the idea was to add all the boxes and their coordinates to a slice of slices
+	// that way the boxes at the same level are in the same slice
+	// we can check the next levels movement based on all the boxes at the current level
+	stonesToMove := [][]Box{}
+	isEnd := false
 	for {
-		currLevelStones := []Point2{}
+		currLevelStones := []Box{}
 		currPos.x += currDir.x
 		currPos.y += currDir.y
+		// first level
 		if len(stonesToMove) == 0 {
 			if matrix[currPos.x][currPos.y] == "." {
-				levels++
 				break
 			}
 			if matrix[currPos.x][currPos.y] == "#" {
-				levels = 0
+				isEnd = true
 				break
 			}
 			if matrix[currPos.x][currPos.y] == "[" {
-				levels++
-				currLevelStones = append(currLevelStones, Point2{currPos.x, currPos.y, "["}, Point2{currPos.x, currPos.y + 1, "]"})
+				currLevelStones = append(currLevelStones, Box{currPos.x, currPos.y, "["}, Box{currPos.x, currPos.y + 1, "]"})
 			}
 			if matrix[currPos.x][currPos.y] == "]" {
-				levels++
-				currLevelStones = append(currLevelStones, Point2{currPos.x, currPos.y - 1, "["}, Point2{currPos.x, currPos.y, "]"})
+				currLevelStones = append(currLevelStones, Box{currPos.x, currPos.y - 1, "["}, Box{currPos.x, currPos.y, "]"})
 			}
 			stonesToMove = append(stonesToMove, currLevelStones)
 			continue
 		}
-		// [4,6 4,7]
-		for _, previousLevelStones := range stonesToMove[levels-1] {
+		// all levels after the first level
+		for _, previousLevelStones := range stonesToMove[len(stonesToMove)-1] {
 			currPos = Point{previousLevelStones.x + currDir.x, previousLevelStones.y + currDir.y}
 			if matrix[currPos.x][currPos.y] == "#" {
-				levels = 0
+				isEnd = true
 				break
 			}
 			if matrix[currPos.x][currPos.y] == "." {
@@ -232,36 +216,38 @@ func moveInDir2(matrix [][]string, pos Point, dir string) ([][]string, Point) {
 			}
 			if matrix[currPos.x][currPos.y] == "[" {
 				if !checkIfContains(currLevelStones, currPos) {
-					currLevelStones = append(currLevelStones, Point2{currPos.x, currPos.y, "["}, Point2{currPos.x, currPos.y + 1, "]"})
+					currLevelStones = append(currLevelStones, Box{currPos.x, currPos.y, "["}, Box{currPos.x, currPos.y + 1, "]"})
 				}
 			}
 			if matrix[currPos.x][currPos.y] == "]" {
 				if !checkIfContains(currLevelStones, currPos) {
-					currLevelStones = append(currLevelStones, Point2{currPos.x, currPos.y - 1, "["}, Point2{currPos.x, currPos.y, "]"})
+					currLevelStones = append(currLevelStones, Box{currPos.x, currPos.y - 1, "["}, Box{currPos.x, currPos.y, "]"})
 				}
 			}
 
 		}
-		if levels == 0 {
+		if isEnd {
 			return matrix, pos
 		}
-		levels++
+		// if there aren't any boxes at the current level break the loop
 		if len(currLevelStones) == 0 {
 			break
 		}
 		stonesToMove = append(stonesToMove, currLevelStones)
 
 	}
-	if levels == 0 {
+	// don't move anything if we reached # with any box
+	if isEnd {
 		return matrix, pos
-
 	}
+	// move the boxes
 	for j := len(stonesToMove) - 1; j >= 0; j-- {
 		for _, stone := range stonesToMove[j] {
 			matrix[stone.x][stone.y] = "."
 			matrix[stone.x+currDir.x][stone.y+currDir.y] = stone.sign
 		}
 	}
+	// move the robot
 	currPosRobot = pos
 	matrix[currPosRobot.x][currPosRobot.y] = "."
 	currPosRobot.x += currDir.x
@@ -272,7 +258,7 @@ func moveInDir2(matrix [][]string, pos Point, dir string) ([][]string, Point) {
 
 }
 
-func checkIfContains(lst []Point2, pos Point) bool {
+func checkIfContains(lst []Box, pos Point) bool {
 	for _, pnt := range lst {
 		if pnt.x == pos.x && pnt.y == pos.y {
 			return true
