@@ -88,6 +88,8 @@ func getInput(day string) {
 	f.Write(body)
 	f.Sync()
 	f.Close()
+
+	fmt.Printf("Successfully got the puzzle input at %s\n", filePath)
 }
 
 func prepDay(day string) {
