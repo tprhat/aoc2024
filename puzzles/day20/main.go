@@ -83,6 +83,12 @@ func dijkstra(matrix [][]string, source, end Point) int {
 	return -1
 }
 
+// the idea behind part 1 was to remove one wall from the whole grid and run path finding from S to E for each wall removed
+// this worked but it was extremely slow (5m30s) so another plan had to be found.
+// the plan for part 2 was to create 2 maps of all the distances from start and end to every point in the matrix.
+// the algorithm goes over all the points it the starting and ending map together and checks if the distance
+// between 2 points from start and end was <= 20, if that is fine it checks if it's at least a 100 better than the best solution
+// in the end it turned out that it works for any distance so part1 uses the same algorithm.
 func solve(name string) (int, int) {
 	matrix, start, end := transformInput(name)
 	best := dijkstra(matrix, start, end)
